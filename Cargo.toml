@@ -6,7 +6,9 @@ edition = "2024"
 [dependencies]
 bincode = { version = "^1", default-features = false }
 clap = { version = "^4", features = ["derive"] }
+csv = "^1"
 data-encoding = "^2"
+serde = { version = "^1", default-features = false, features = ["derive"] }
 tokio = { version = "^1", default-features = false, features = ["rt-multi-thread"] }
 
 # program deps
@@ -27,3 +29,6 @@ solana-signature = "^2"
 solana-signer = "^2"
 solana-transaction = "^2"
 solana-transaction-status-client-types = "^2"
+
+[dev-dependencies]
+proptest = "^1"
