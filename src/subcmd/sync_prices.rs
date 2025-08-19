@@ -27,8 +27,8 @@ use crate::{
     },
 };
 
-const MAX_SET_LST_FEE_IX_PER_TX: usize = 10;
-const MAX_REMOVE_LST_IX_PER_TX: usize = 10;
+const MAX_SET_LST_FEE_IX_PER_TX: usize = 17;
+const MAX_REMOVE_LST_IX_PER_TX: usize = 18;
 
 #[derive(Args, Debug)]
 #[command(long_about = "Syncs price entries with the slab onchain")]
@@ -211,4 +211,107 @@ impl SyncPricesArgs {
 
 fn setting_msg(entry: &SlabCsvEntry) -> String {
     format!("{} inp={} out={}", entry.mint, entry.inp, entry.out)
+}
+
+#[cfg(test)]
+mod tests {
+    use solana_compute_budget_interface::ComputeBudgetInstruction;
+    use solana_message::{VersionedMessage, v0::Message};
+    use solana_signature::Signature;
+    use solana_transaction::versioned::VersionedTransaction;
+
+    use super::*;
+
+    pub fn to_mocked_tx(ixs: Vec<Instruction>, payer_pk: &Pubkey) -> VersionedTransaction {
+        let message = VersionedMessage::V0(
+            Message::try_compile(payer_pk, &ixs, &[], Default::default()).unwrap(),
+        );
+        VersionedTransaction {
+            signatures: vec![Signature::default(); message.header().num_required_signatures.into()],
+            message,
+        }
+    }
+
+    #[test]
+    fn verify_max_set_lst_fee_ix_per_tx() {
+        let payer = Pubkey::new_unique();
+        let admin = Pubkey::new_unique();
+        let ixs: Vec<_> = [
+            ComputeBudgetInstruction::set_compute_unit_limit(0),
+            ComputeBudgetInstruction::set_compute_unit_price(0),
+        ]
+        .into_iter()
+        .chain((0..MAX_SET_LST_FEE_IX_PER_TX).map(|_| {
+            Instruction::new_with_bytes(
+                crate::PROGRAM_ID.into(),
+                SetLstFeeIxData::new(SetLstFeeIxArgs {
+                    inp_fee_nanos: 0,
+                    out_fee_nanos: 0,
+                })
+                .as_buf(),
+                keys_signer_writable_to_metas(
+                    NewSetLstFeeIxAccsBuilder::start()
+                        .with_admin(admin.as_array())
+                        .with_mint(Pubkey::new_unique().as_array())
+                        .with_payer(payer.as_array())
+                        .with_slab(&SLAB_ID)
+                        .with_system_program(&[0u8; 32])
+                        .build()
+                        .0
+                        .iter()
+                        .copied(),
+                    SET_LST_FEE_IX_IS_SIGNER.0.iter(),
+                    SET_LST_FEE_IX_IS_WRITER.0.iter(),
+                ),
+            )
+        }))
+        .collect();
+
+        let tx = to_mocked_tx(ixs, &payer);
+
+        let tx_byte_len = bincode::serialize(&tx).unwrap().len();
+        //eprintln!("{tx_byte_len}");
+        assert!(tx_byte_len < 1232, "{tx_byte_len}");
+    }
+
+    #[test]
+    fn verify_max_remove_lst_ix_per_tx() {
+        let payer = Pubkey::new_unique();
+        let admin = Pubkey::new_unique();
+        let ixs: Vec<_> = [
+            ComputeBudgetInstruction::set_compute_unit_limit(0),
+            ComputeBudgetInstruction::set_compute_unit_price(0),
+        ]
+        .into_iter()
+        .chain((0..MAX_REMOVE_LST_IX_PER_TX).map(|_| {
+            Instruction::new_with_bytes(
+                crate::PROGRAM_ID.into(),
+                SetLstFeeIxData::new(SetLstFeeIxArgs {
+                    inp_fee_nanos: 0,
+                    out_fee_nanos: 0,
+                })
+                .as_buf(),
+                keys_signer_writable_to_metas(
+                    NewRemoveLstIxAccsBuilder::start()
+                        .with_admin(admin.as_array())
+                        .with_mint(Pubkey::new_unique().as_array())
+                        .with_refund_rent_to(payer.as_array())
+                        .with_slab(&SLAB_ID)
+                        .build()
+                        .0
+                        .iter()
+                        .copied(),
+                    REMOVE_LST_IX_IS_SIGNER.0.iter(),
+                    REMOVE_LST_IX_IS_WRITER.0.iter(),
+                ),
+            )
+        }))
+        .collect();
+
+        let tx = to_mocked_tx(ixs, &payer);
+
+        let tx_byte_len = bincode::serialize(&tx).unwrap().len();
+        //eprintln!("{tx_byte_len}");
+        assert!(tx_byte_len < 1232, "{tx_byte_len}");
+    }
 }
