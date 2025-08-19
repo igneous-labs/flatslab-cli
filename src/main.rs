@@ -13,7 +13,7 @@ pub use inf1_pp_flatslab_core::ID as PROGRAM_ID;
 
 mod sscu;
 mod subcmd;
-mod tx_utils;
+mod utils;
 
 #[derive(Parser, Debug)]
 #[command(author, version)]

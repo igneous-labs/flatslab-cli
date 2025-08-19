@@ -1,4 +1,5 @@
 use data_encoding::BASE64;
+use inf1_pp_flatslab_core::keys::SLAB_ID;
 use solana_commitment_config::{CommitmentConfig, CommitmentLevel};
 use solana_compute_budget_interface::ComputeBudgetInstruction;
 use solana_hash::Hash;
@@ -139,4 +140,8 @@ pub async fn handle_tx(rpc: &RpcClient, send_mode: TxSendMode, tx: &impl Seriali
             println!("{}", BASE64.encode(&bincode::serialize(tx).unwrap()))
         }
     }
+}
+
+pub async fn fetch_slab_data(rpc: &RpcClient) -> Vec<u8> {
+    rpc.get_account_data(&SLAB_ID.into()).await.unwrap()
 }

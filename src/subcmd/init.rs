@@ -8,7 +8,7 @@ use solana_rpc_client::nonblocking::rpc_client::RpcClient;
 
 use crate::{
     sscu::parse_signer,
-    tx_utils::{handle_tx, keys_signer_writable_to_metas, to_signed_tx, with_auto_cb},
+    utils::{handle_tx, keys_signer_writable_to_metas, to_signed_tx, with_auto_cb},
 };
 
 #[derive(Args, Debug)]
