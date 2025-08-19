@@ -39,7 +39,7 @@ pub async fn with_auto_cb(
     fee_cb: u64,
 ) -> Vec<Instruction> {
     match tsm {
-        TxSendMode::DumpMsg => ixs,
+        TxSendMode::Dump64 | TxSendMode::Dump58 => ixs,
         TxSendMode::SendActual | TxSendMode::SimOnly => {
             let result = rpc
                 .simulate_transaction_with_config(&to_est_cu_sim_tx(payer_pk, &ixs), SIM_TX_CFG)
@@ -136,8 +136,14 @@ pub async fn handle_tx(rpc: &RpcClient, send_mode: TxSendMode, tx: &impl Seriali
             eprintln!("Simulate result:");
             eprintln!("{result:#?}");
         }
-        TxSendMode::DumpMsg => {
+        TxSendMode::Dump64 => {
             println!("{}", BASE64.encode(&bincode::serialize(tx).unwrap()))
+        }
+        TxSendMode::Dump58 => {
+            println!(
+                "{}",
+                bs58::encode(&bincode::serialize(tx).unwrap()).into_string()
+            )
         }
     }
 }

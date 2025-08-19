@@ -23,7 +23,7 @@ pub fn deserialize<'de, D: Deserializer<'de>>(d: D) -> Result<Pubkey, D::Error> 
 
         fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
         where
-            E: serde::de::Error,
+            E: Error,
         {
             Pubkey::from_str(v).map_err(Error::custom)
         }

@@ -9,6 +9,7 @@ path = "src/main.rs"
 
 [dependencies]
 bincode = { version = "^1", default-features = false }
+bs58 = "^0.5"
 clap = { version = "^4", features = ["derive"] }
 csv = "^1"
 data-encoding = "^2"

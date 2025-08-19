@@ -720,6 +720,7 @@ name = "flatslab-cli"
 version = "0.1.0"
 dependencies = [
  "bincode",
+ "bs58",
  "clap 4.5.45",
  "csv",
  "data-encoding",

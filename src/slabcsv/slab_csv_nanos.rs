@@ -21,7 +21,7 @@ pub fn deserialize<'de, D: Deserializer<'de>>(d: D) -> Result<i32, D::Error> {
 
         fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
         where
-            E: serde::de::Error,
+            E: Error,
         {
             // allow underscores for human-readable formatting
             let v = v.replace("_", "");
@@ -43,7 +43,7 @@ pub fn deserialize<'de, D: Deserializer<'de>>(d: D) -> Result<i32, D::Error> {
 
         fn visit_i32<E>(self, v: i32) -> Result<Self::Value, E>
         where
-            E: serde::de::Error,
+            E: Error,
         {
             Ok(v)
         }
