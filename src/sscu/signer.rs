@@ -8,7 +8,7 @@ pub fn parse_signer(arg: &str) -> Result<Box<dyn Signer>, String> {
     match Pubkey::from_str(arg) {
         Ok(p) => Ok(Box::new(NullSigner::new(&p))),
         Err(_) => signer_from_path(&Default::default(), arg, "signer", &mut None)
-            .map_err(|e| e.to_string()),
+            .map_err(|e| format!("Failed to load signer from solana config: {e}")),
     }
 }
 
