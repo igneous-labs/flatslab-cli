@@ -23,7 +23,8 @@ pub struct Args {
         long,
         short,
         default_value = "",
-        value_parser = ValueParser::new(parse_solana_config_from_path)
+        value_parser = ValueParser::new(parse_solana_config_from_path),
+        help = "Note: you can set `solana config set -k <multisig-b58-pubkey>` to set fee-payer to multisig"
     )]
     pub config: Arc<Config>, // use Arc<> to workaround clap requiring field to be clone
 

@@ -82,10 +82,12 @@ pub async fn to_signed_tx(
     mut signers: Vec<&dyn Signer>,
     rpc: &RpcClient,
 ) -> VersionedTransaction {
+    let payer_pk = signers.first().unwrap().pubkey();
+
+    // NB: sort only after picking out payer pubkey,
+    // else payer will not be what user expects
     signers.sort_by_key(|s| s.pubkey());
     signers.dedup_by_key(|s| s.pubkey());
-
-    let payer_pk = signers.first().unwrap().pubkey();
 
     let rbh = rpc.get_latest_blockhash().await.unwrap();
 

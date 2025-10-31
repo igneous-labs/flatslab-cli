@@ -77,7 +77,15 @@ impl SyncPricesArgs {
             admin,
         } = self;
 
-        let entries = read_slab_csv_file(csv.as_ref());
+        let mut entries = read_slab_csv_file(csv.as_ref());
+        entries.sort_unstable_by_key(|e| e.mint);
+
+        entries.as_slice().windows(2).for_each(|s| {
+            if s[0].mint == s[1].mint {
+                panic!("Duplicate mint {}", s[0].mint);
+            }
+        });
+
         let rpc = RpcClient::new(config.json_rpc_url.to_owned());
         let payer = parse_signer(&config.keypair_path).unwrap();
         let payer_pk = payer.pubkey();
