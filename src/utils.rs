@@ -84,6 +84,8 @@ pub async fn to_signed_tx(
 ) -> VersionedTransaction {
     let payer_pk = signers.first().unwrap().pubkey();
 
+    // NB: sort only after picking out payer pubkey,
+    // else payer will not be what user expects
     signers.sort_by_key(|s| s.pubkey());
     signers.dedup_by_key(|s| s.pubkey());
 
